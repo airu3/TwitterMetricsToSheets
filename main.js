@@ -291,7 +291,7 @@ function writeToSheet(sheetInfo, manager, accountData, debugMode = false) {
 	}
 
 	// 行と列のオフセットを用いて、データを書き込む
-	//sheetInfo.cell は、keyがメトリクス名、valueが列名のオブジェクト
+	// sheetInfo.cell は、keyがメトリクス名、valueが列名のオブジェクト
 	Object.keys(sheetInfo.cell).forEach((metrics, index) => {
 		const rowOffsets = sheetInfo.cellOffsets.row;
 		const colOffsets = sheetInfo.cellOffsets.col;
@@ -308,8 +308,13 @@ function writeToSheet(sheetInfo, manager, accountData, debugMode = false) {
 		// セルのオフセットを適用して、書き込む行を決定
 		// rowOffsetsが [0, 1, 2, 3, 4] なら、担当者名の行から+0行、+1行、+2行、+3行、+4行のセルに書き込む
 		rowOffsets.forEach((rowOffset, rowIndex) => {
-			const currentRow = rowStart + rowOffset; // 担当者名に基づく行
 			const username = Object.keys(accountData)[rowIndex]; // ユーザー名を取得
+			// メトリクス名が accountData に存在するかをチェック
+			if (!accountData[username].hasOwnProperty(metrics)) {
+				return; // 存在しない場合は次のメトリクスに進む
+			}
+
+			const currentRow = rowStart + rowOffset; // 担当者名に基づく行
 			const valueToWrite = accountData[username][metrics]; // ユーザーデータを取得
 
 			const currentCell = sheet
