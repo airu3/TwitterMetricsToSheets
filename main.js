@@ -1,4 +1,4 @@
-const DEBUG = true; // デバッグモードを有効にするかどうか
+const IS_DEBUG = true; // デバッグモードを有効にするかどうか
 
 // Description: メイン処理を記述するファイル
 let sheetInfo = {
@@ -45,7 +45,13 @@ let sheetInfo = {
 		},
 	},
 };
-
+const accountInfo = {
+	sheetId: "1A-BibfT78-1z54ch8DhJGANUCEBxwhwHDC0EreejaiI", // 実際のシートIDを確認してください
+	sheetName: "アカウント一覧｜個人",
+	teamRange: "B2:B6", // チーム名が記載されている範囲
+	managerRange: ["B18:B22", "B69:B73"], // 担当者の名前が記載されている範囲
+	usernameRange: ["F18:F22", "F69:F73"], // アカウント名が記載されている範囲
+};
 // userRetrieval.gs
 
 /**
@@ -59,24 +65,29 @@ function getManagerAndUsername(sheetInfo) {
 	const sheet = SpreadsheetApp.openById(sheetInfo.sheetId).getSheetByName(
 		sheetInfo.sheetName
 	);
-	const managerNames = sheet.getRange(sheetInfo.managerRange).getValues();
-	const userNames = sheet.getRange(sheetInfo.userNameRange).getValues();
 
-	// 担当者苗字をキーにしたオブジェクトにアカウント名を整理
 	const result = {};
 
-	userNames.forEach((row, index) => {
-		let userName = row[0];
-		userName = userName.replace(/[@＠]/g, "").trim(); // 「@」および「＠」記号の除去とトリミング
+	// managerRange と usernameRange が配列であることを前提に処理
+	sheetInfo.managerRange.forEach((managerRange, index) => {
+		const usernameRange = sheetInfo.usernameRange[index];
 
-		const managerName = managerNames[index][0];
+		const managerNames = sheet.getRange(managerRange).getValues();
+		const usernames = sheet.getRange(usernameRange).getValues();
 
-		// 担当者名をキーにして、対応するアカウント名を配列に追加
-		if (!result[managerName]) {
-			result[managerName] = [];
-		}
+		usernames.forEach((row, rowIndex) => {
+			let userName = row[0];
+			userName = userName.replace(/[@＠]/g, "").trim(); // 「@」および「＠」記号の除去とトリミング
 
-		result[managerName].push(userName);
+			const managerName = managerNames[rowIndex][0];
+
+			// 担当者名をキーにして、対応するアカウント名を配列に追加
+			if (!result[managerName]) {
+				result[managerName] = [];
+			}
+
+			result[managerName].push(userName);
+		});
 	});
 
 	return result;
@@ -256,9 +267,9 @@ function columnNameToNumber(columnName) {
  * @param {*} sheetInfo - シート情報
  * @param {*} manager - 担当者名
  * @param {*} accountData - アカウントデータ
- * @param {boolean} debugMode - デバッグモードかどうか
+ * @param {boolean} IS_DEBUGMode - デバッグモードかどうか
  */
-function writeToSheet(sheetInfo, manager, accountData, debugMode = false) {
+function writeToSheet(sheetInfo, manager, accountData, IS_DEBUGMode = false) {
 	const sheet = SpreadsheetApp.openById(sheetInfo.sheetId).getSheetByName(
 		sheetInfo.sheetName
 	);
@@ -338,7 +349,7 @@ function writeToSheet(sheetInfo, manager, accountData, debugMode = false) {
 				.getA1Notation();
 
 			Logger.log(`セル (${currentCell}) に "${valueToWrite}" を書き込みます。`);
-			if (!debugMode) {
+			if (!IS_DEBUGMode) {
 				sheet.getRange(currentRow, currentCol).setValue(valueToWrite);
 			}
 		});
@@ -347,13 +358,6 @@ function writeToSheet(sheetInfo, manager, accountData, debugMode = false) {
 
 // main.gs
 const main = () => {
-	const accountInfo = {
-		sheetId: "1A-BibfT78-1z54ch8DhJGANUCEBxwhwHDC0EreejaiI", // 実際のシートIDを確認してください
-		sheetName: "アカウント一覧｜個人",
-		managerRange: "B69:B73", // 担当者の名前が記載されている範囲
-		userNameRange: "F69:F73", // アカウント名が記載されている範囲
-	};
-
 	// 担当者名とアカウント名を取得
 	const userData = getManagerAndUsername(accountInfo);
 	Logger.log(JSON.stringify(userData, null, 2));
@@ -367,11 +371,13 @@ const main = () => {
 		accounts.forEach((account, index) => {
 			try {
 				const apiKey = API_KEYS[index % API_KEYS.length]; // APIキーを循環させる
-				const metrics = getUserMetrics(account, apiKey, DEBUG); // メトリクスを取得　テストモード
+				const metrics = getUserMetrics(account, apiKey, IS_DEBUG); // メトリクスを取得　テストモード
 				userData[manager][account] = metrics; // ユーザー名をキーにしてメトリクスを格納
 			} catch (error) {
 				Logger.log(`Error fetching metrics for ${account}: ${error.message}`);
 			}
+			// 1分待機
+			if (!IS_DEBUG) Utilities.sleep(1000 * 60);
 		});
 		Logger.log(JSON.stringify(userData, null, 2));
 
@@ -387,7 +393,7 @@ const main = () => {
 			sheetInfo.shiftTableBySurname,
 			manager,
 			userData[manager],
-			DEBUG
+			IS_DEBUG
 		); // メトリクスを書き込む
 	});
 };
