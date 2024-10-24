@@ -206,6 +206,68 @@ function getUserMetrics(userName, apiKey, testMode = false) {
 }
 */
 
+/*
+const data = {
+  managers: [
+    {
+      name: "御手洗",
+      accounts: [
+        {
+          username: "nnt_25_marin",
+          followers: 150,
+          following: 100
+        },
+        {
+          username: "shukatsuroom01",
+          followers: 200,
+          following: 150
+        },
+        {
+          username: "tara_027",
+          followers: 300,
+          following: 250
+        },
+        {
+          username: "freelance_025",
+          followers: 400,
+          following: 300
+        },
+        {
+          username: "yui_ura021",
+          followers: 500,
+          following: 350
+        }
+      ]
+    },
+    {
+      name: "岸",
+      accounts: [
+        {
+          username: "kokoku_shukathu",
+          followers: 150,
+          following: 100
+        },
+        {
+          username: "ruri_26_",
+          followers: 200,
+          following: 150
+        },
+        {
+          username: "aoi_entp",
+          followers: 300,
+          following: 250
+        },
+        {
+          username: "j_otaku_",
+          followers: 400,
+          following: 300
+        }
+      ]
+    }
+  ]
+};
+*/
+
 // writeSheet.gs
 
 /**
