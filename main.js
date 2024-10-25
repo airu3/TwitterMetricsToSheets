@@ -1,4 +1,5 @@
-const IS_DEBUG = true; // デバッグモードを有効にするかどうか
+const IS_WRITE = false; // デバッグモードを有効にするかどうか
+const IS_MOCK_METRICS = false;
 
 // userRetrieval.gs
 
@@ -47,11 +48,12 @@ function getManagerAndUsername(sheetInfo) {
  * 指定したユーザーのメトリクスを取得する
  * @param {*} userName
  * @param {*} apiKey
- * @param {boolean} testMode - テストモードかどうか
+ * @param {boolean} isMockMetrics - テストモードかどうか
  * @returns {Object} フォロワー数とフォロー数を含むオブジェクト
  */
-function getUserMetrics(userName, apiKey, testMode = false) {
-	if (testMode) {
+function getUserMetrics(userName, apiKey, isMockMetrics = false) {
+	if (isMockMetrics) {
+		Logger.log("テストモードが有効です。ランダムなメトリクスを返します。");
 		// テストモードの場合、ランダムなフォロワー数とフォロー数を返す
 		return {
 			followers: Math.floor(Math.random() * 1000),
@@ -69,13 +71,7 @@ function getUserMetrics(userName, apiKey, testMode = false) {
 		const data = JSON.parse(response.getContentText());
 
 		if (data.errors) {
-			Logger.log(
-				`Error fetching metrics for ${userName}: ${data.errors[0].detail}`
-			);
-			return {
-				followers: -1,
-				following: -1,
-			};
+			throw new Error(data.errors);
 		}
 
 		return {
@@ -85,8 +81,8 @@ function getUserMetrics(userName, apiKey, testMode = false) {
 	} catch (error) {
 		Logger.log(`Error fetching metrics for ${userName}: ${error.message}`);
 		return {
-			followers: -1,
-			following: -1,
+			followers: error.message,
+			following: error.message,
 		};
 	}
 }
@@ -152,13 +148,19 @@ function columnNameToNumber(columnName) {
  * @param {*} sheetInfo - シート情報
  * @param {*} manager - 担当者名
  * @param {*} accountData - アカウントデータ
- * @param {boolean} IS_DEBUGMode - デバッグモードかどうか
+ * @param {boolean} isDebug - デバッグモードかどうか
  */
-function writeToSheet(sheetInfo, manager, accountData, IS_DEBUGMode = false) {
+function writeToSheet(sheetInfo, manager, accountData, isDebug = false) {
 	const sheet = SpreadsheetApp.openById(sheetInfo.sheetId).getSheetByName(
 		sheetInfo.sheetName
 	);
-	Logger.log(`シート "${sheetInfo.sheetName}" にデータを書き込みます。`);
+	Logger.log(
+		`
+		[${isDebug ? "DEBUG" : "WRITE"}]\n
+		ファイル名 ${sheet.getName()}\n
+		シート名 ${sheetInfo.sheetName}\n
+		`
+	);
 
 	// 日付列の範囲を取得
 	const dateRange = sheet.getRange(sheetInfo.dateRange);
@@ -234,7 +236,7 @@ function writeToSheet(sheetInfo, manager, accountData, IS_DEBUGMode = false) {
 				.getA1Notation();
 
 			Logger.log(`セル (${currentCell}) に "${valueToWrite}" を書き込みます。`);
-			if (!IS_DEBUGMode) {
+			if (!isDebug) {
 				sheet.getRange(currentRow, currentCol).setValue(valueToWrite);
 			}
 		});
@@ -256,13 +258,13 @@ const main = () => {
 		accounts.forEach((account, index) => {
 			try {
 				const apiKey = API_KEYS[index % API_KEYS.length]; // APIキーを循環させる
-				const metrics = getUserMetrics(account, apiKey, IS_DEBUG); // メトリクスを取得　テストモード
+				const metrics = getUserMetrics(account, apiKey, IS_MOCK_METRICS); // メトリクスを取得　テストモード
 				userData[manager][account] = metrics; // ユーザー名をキーにしてメトリクスを格納
 			} catch (error) {
 				Logger.log(`Error fetching metrics for ${account}: ${error.message}`);
 			}
 			// 1分待機
-			if (!IS_DEBUG) Utilities.sleep(1000 * 60);
+			if (!IS_MOCK_METRICS) Utilities.sleep(1000);
 		});
 		Logger.log(JSON.stringify(userData, null, 2));
 
@@ -278,7 +280,7 @@ const main = () => {
 			sheetInfo.shiftTableBySurname,
 			manager,
 			userData[manager],
-			IS_DEBUG
+			IS_WRITE
 		); // メトリクスを書き込む
 	});
 };
