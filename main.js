@@ -1,57 +1,5 @@
 const IS_DEBUG = true; // デバッグモードを有効にするかどうか
 
-// Description: メイン処理を記述するファイル
-let sheetInfo = {
-	personalManagementReport: {
-		sheetId: "1fMWBLjOgLquLMBFmLmsW9-sB5rb3DoEFU1nyqT7knBY",
-		sheetName: "アカウント日報",
-		dateRange: "A:A",
-		cell: {
-			following: ["C"], // 1列に対応
-			followers: ["D"],
-			// posts: ["G"],
-		},
-		cellOffsets: {
-			row: [0, 1, 2, 3, 4],
-		},
-	},
-	shiftTableBySurname: {
-		sheetId: "1A-BibfT78-1z54ch8DhJGANUCEBxwhwHDC0EreejaiI",
-		sheetName: "", // surname確定後に取得
-		dateRange: "A:A",
-		cell: {
-			followers: ["D"],
-			//impressions: ["G"],
-			//topImpressions: ["I", "J", "K"], // 複数列に対応
-		},
-		cellOffsets: {
-			row: [0, 1, 2, 3, 4],
-		},
-	},
-	teamManagement: {
-		sheetId: "1s9onhB8ixmkk2g_qjUQZgNKa1rTERlVDGN4YroZWJxQ",
-		sheetName: "ff管理",
-		dateRange: "5:5",
-		surnameRange: "A:A",
-		cell: {
-			followers: "", // 日付ヒットから+0列
-			following: "", // 日付ヒットから+1列
-			// followback: "", // 日付ヒットから+2列
-			// posts: "", // 日付ヒットから+3列
-		},
-		cellOffsets: {
-			row: [0, 1, 2, 3, 4], // 行オフセット
-			col: [0, 1, 2, 3],
-		},
-	},
-};
-const accountInfo = {
-	sheetId: "1A-BibfT78-1z54ch8DhJGANUCEBxwhwHDC0EreejaiI", // 実際のシートIDを確認してください
-	sheetName: "アカウント一覧｜個人",
-	teamRange: "B2:B6", // チーム名が記載されている範囲
-	managerRange: ["B18:B22", "B69:B73"], // 担当者の名前が記載されている範囲
-	usernameRange: ["F18:F22", "F69:F73"], // アカウント名が記載されている範囲
-};
 // userRetrieval.gs
 
 /**
@@ -92,25 +40,6 @@ function getManagerAndUsername(sheetInfo) {
 
 	return result;
 }
-
-/*
-{
-  "御手洗": [
-    "nnt_25_marin",
-    "shukatsuroom01",
-    "tara_027",
-    "freelance_025",
-    "yui_ura021"
-  ],
-  "岸": [
-    "kokoku_shukathu",
-    "ruri_26_",
-    "aoi_entp",
-    "j_otaku_",
-    "menmentaiko2"
-  ]
-}
-*/
 
 // apiService.gs
 
@@ -161,112 +90,6 @@ function getUserMetrics(userName, apiKey, testMode = false) {
 		};
 	}
 }
-
-/*
-{
-  "御手洗": {
-    "nnt_25_marin": {
-      "followers": 150,
-      "following": 100
-    },
-    "shukatsuroom01": {
-      "followers": 200,
-      "following": 150
-    },
-    "tara_027": {
-      "followers": 300,
-      "following": 250
-    },
-    "freelance_025": {
-      "followers": 400,
-      "following": 300
-    },
-    "yui_ura021": {
-      "followers": 500,
-      "following": 350
-    }
-  },
-  "岸": {
-    "kokoku_shukathu": {
-      "followers": 150,
-      "following": 100
-    },
-    "ruri_26_": {
-      "followers": 200,
-      "following": 150
-    },
-    "aoi_entp": {
-      "followers": 300,
-      "following": 250
-    },
-    "j_otaku_": {
-      "followers": 400,
-      "following": 300
-    }
-}
-*/
-
-/*
-const data = {
-  managers: [
-    {
-      name: "御手洗",
-      accounts: [
-        {
-          username: "nnt_25_marin",
-          followers: 150,
-          following: 100
-        },
-        {
-          username: "shukatsuroom01",
-          followers: 200,
-          following: 150
-        },
-        {
-          username: "tara_027",
-          followers: 300,
-          following: 250
-        },
-        {
-          username: "freelance_025",
-          followers: 400,
-          following: 300
-        },
-        {
-          username: "yui_ura021",
-          followers: 500,
-          following: 350
-        }
-      ]
-    },
-    {
-      name: "岸",
-      accounts: [
-        {
-          username: "kokoku_shukathu",
-          followers: 150,
-          following: 100
-        },
-        {
-          username: "ruri_26_",
-          followers: 200,
-          following: 150
-        },
-        {
-          username: "aoi_entp",
-          followers: 300,
-          following: 250
-        },
-        {
-          username: "j_otaku_",
-          followers: 400,
-          following: 300
-        }
-      ]
-    }
-  ]
-};
-*/
 
 // writeSheet.gs
 
