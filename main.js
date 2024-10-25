@@ -1,6 +1,78 @@
 const IS_DEBUG = false; // デバッグモードを有効にするかどうか
 const IS_MOCK_METRICS = false;
 
+// シート情報
+const data = {
+	managers: {
+		name: "御手洗",
+		accounts: [
+			{
+				username: "nnt_25_marin",
+				metrics: {
+					followers: 150,
+					following: 100,
+				},
+			},
+			{
+				username: "shukatsuroom01",
+				metrics: {
+					followers: 150,
+					following: 100,
+				},
+			},
+			{
+				username: "tara_027",
+				metrics: {
+					followers: 150,
+					following: 100,
+				},
+			},
+			{
+				username: "freelance_025",
+				metrics: {
+					followers: 150,
+					following: 100,
+				},
+			},
+			{
+				username: "yui_ura021",
+				metrics: {
+					followers: 150,
+					following: 100,
+				},
+			},
+		],
+	},
+};
+//mitarai のアカウント情報
+const mitarai1 = data.managers[0].accounts[0];
+
+const internData = {
+	御手洗: {
+		nnt_25_marin: {
+			followers: 150,
+			following: 100,
+		},
+		shukatsuroom01: {
+			followers: 200,
+			following: 150,
+		},
+		tara_027: {
+			followers: 300,
+			following: 250,
+		},
+		freelance_025: {
+			followers: 400,
+			following: 300,
+		},
+		yui_ura021: {
+			followers: 500,
+			following: 350,
+		},
+	},
+};
+//御手洗のアカウント情報
+
 // userRetrieval.gs
 
 /**
@@ -156,9 +228,9 @@ function writeToSheet(sheetInfo, manager, accountData, isDebug = false) {
 	);
 	Logger.log(
 		`
-		[${isDebug ? "DEBUG" : "WRITE"}]\n
-		ファイル名 ${sheet.getName()}\n
-		シート名 ${sheetInfo.sheetName}\n
+		[${isDebug ? "DEBUG" : "WRITE"}]
+		ファイル名 ${sheet.getName()}
+		シート名 ${sheetInfo.sheetName}
 		`
 	);
 
