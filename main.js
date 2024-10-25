@@ -1,4 +1,4 @@
-const IS_WRITE = false; // デバッグモードを有効にするかどうか
+const IS_DEBUG = false; // デバッグモードを有効にするかどうか
 const IS_MOCK_METRICS = false;
 
 // userRetrieval.gs
@@ -280,7 +280,7 @@ const main = () => {
 			sheetInfo.shiftTableBySurname,
 			manager,
 			userData[manager],
-			IS_WRITE
+			IS_DEBUG
 		); // メトリクスを書き込む
 	});
 };
