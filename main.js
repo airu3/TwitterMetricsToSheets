@@ -264,7 +264,7 @@ const main = () => {
 				Logger.log(`Error fetching metrics for ${account}: ${error.message}`);
 			}
 			// 1分待機
-			if (!IS_MOCK_METRICS) Utilities.sleep(1000);
+			if (!IS_MOCK_METRICS) Utilities.sleep(1000 * 60);
 		});
 		Logger.log(JSON.stringify(userData, null, 2));
 
