@@ -287,11 +287,3 @@ const main = () => {
 function setupTrigger() {
 	ScriptApp.newTrigger("main").timeBased().everyMinutes(15).create();
 }
-
-/*
-タスク
-チームのff管理表書き込み
-userDataのjson構造をteam{manager{account{metrics}}}に変更
-チームごとのff管理表に書き込めるようにする
-定期実行
-*/
