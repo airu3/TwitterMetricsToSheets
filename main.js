@@ -1,78 +1,6 @@
 const IS_DEBUG = false; // デバッグモードを有効にするかどうか
 const IS_MOCK_METRICS = false;
 
-// シート情報
-const data = {
-	managers: {
-		name: "御手洗",
-		accounts: [
-			{
-				username: "nnt_25_marin",
-				metrics: {
-					followers: 150,
-					following: 100,
-				},
-			},
-			{
-				username: "shukatsuroom01",
-				metrics: {
-					followers: 150,
-					following: 100,
-				},
-			},
-			{
-				username: "tara_027",
-				metrics: {
-					followers: 150,
-					following: 100,
-				},
-			},
-			{
-				username: "freelance_025",
-				metrics: {
-					followers: 150,
-					following: 100,
-				},
-			},
-			{
-				username: "yui_ura021",
-				metrics: {
-					followers: 150,
-					following: 100,
-				},
-			},
-		],
-	},
-};
-//mitarai のアカウント情報
-const mitarai1 = data.managers[0].accounts[0];
-
-const internData = {
-	御手洗: {
-		nnt_25_marin: {
-			followers: 150,
-			following: 100,
-		},
-		shukatsuroom01: {
-			followers: 200,
-			following: 150,
-		},
-		tara_027: {
-			followers: 300,
-			following: 250,
-		},
-		freelance_025: {
-			followers: 400,
-			following: 300,
-		},
-		yui_ura021: {
-			followers: 500,
-			following: 350,
-		},
-	},
-};
-//御手洗のアカウント情報
-
 // userRetrieval.gs
 
 /**
@@ -226,6 +154,7 @@ function writeToSheet(sheetInfo, manager, accountData, isDebug = false) {
 	const sheet = SpreadsheetApp.openById(sheetInfo.sheetId).getSheetByName(
 		sheetInfo.sheetName
 	);
+
 	Logger.log(
 		`
 		[${isDebug ? "DEBUG" : "WRITE"}]
@@ -255,7 +184,7 @@ function writeToSheet(sheetInfo, manager, accountData, isDebug = false) {
 	let rowStart = todayCell.getRow();
 	let colStart = todayCell.getColumn();
 
-	// セルのオフセットを考慮して、書き込み開始位置を調整
+	// 日報シートの場合、日付行の下に担当者名が記載されている場合がある
 	if (sheetInfo.surnameRange) {
 		// 担当者名が記載されているセルを探す
 		const surnameRange = sheet.getRange(sheetInfo.surnameRange);
@@ -340,12 +269,14 @@ const main = () => {
 		});
 		Logger.log(JSON.stringify(userData, null, 2));
 
-		// writeToSheet(
-		// 	sheetInfo.personalManagementReport,
-		// 	manager,
-		// 	userData[manager],
-		// 	true
-		// ); // メトリクスを書き込む
+		/*
+		writeToSheet(
+			sheetInfo.personalManagementReport,
+			manager,
+			userData[manager],
+			true
+		); // メトリクスを書き込む
+		//*/
 
 		sheetInfo.shiftTableBySurname.sheetName = manager; // 担当者名をシート名に設定
 		writeToSheet(
@@ -355,6 +286,17 @@ const main = () => {
 			IS_DEBUG
 		); // メトリクスを書き込む
 	});
+
+	/*
+	// sheetInfoを繰り返して、sheetInfo.nameがsurnameと一致するものを探す
+	// accountMetricsのキーがsheetInfo.nameに含まれていたら、sheetInfo.sheetNameにsheetNameを設定
+	// その後、writeToSheetを実行
+	sheetInfo.forEach((sheet) => {
+		if (sheet.name.includes(teamName)) {
+			writeToSheet(sheet, manager, userData[manager], IS_DEBUG);
+		}
+	});
+	// */
 };
 
 // トリガー設定
