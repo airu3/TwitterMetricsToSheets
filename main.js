@@ -1,11 +1,21 @@
 const IS_DEBUG = false; // デバッグモードを有効にするかどうか
-const IS_MOCK_METRICS = false;
+const IS_MOCK_METRICS = false; // テストモードを有効にするかどうか
 
 // userRetrieval.gs
 
 /**
+ * シートから指定された範囲のデータを取得する関数
+ * @param {Sheet} sheet - Google Sheetsのシートオブジェクト
+ * @param {Array} ranges - データを取得する範囲の配列
+ * @returns {Array} 取得したデータの配列
+ */
+function getDataFromRanges(sheet, ranges) {
+	return ranges.map((range) => sheet.getRange(range).getValues());
+}
+
+/**
  * 担当者苗字をキーにしてアカウント名を管理する関数
- * @param {*} sheetInfo
+ * @param {Object} sheetInfo - シート情報のオブジェクト
  * @returns {Object} 担当者名をキーにしたアカウント名のオブジェクト
  */
 function getManagerAndUsername(sheetInfo) {
@@ -15,33 +25,40 @@ function getManagerAndUsername(sheetInfo) {
 		sheetInfo.sheetName
 	);
 
+	const teamData = getDataFromRanges(sheet, sheetInfo.ranges.team);
+	const managerData = getDataFromRanges(sheet, sheetInfo.ranges.manager);
+	const userNameData = getDataFromRanges(sheet, sheetInfo.ranges.userName);
+
 	const result = {};
 
-	// managerRange と usernameRange が配列であることを前提に処理
-	sheetInfo.managerRange.forEach((managerRange, index) => {
-		const usernameRange = sheetInfo.usernameRange[index];
+	// チーム名、担当者名、アカウント名のデータを結合
+	teamData.forEach((teamRange, rangeIndex) => {
+		const managerRange = managerData[rangeIndex];
+		const userNameRange = userNameData[rangeIndex];
 
-		const managerNames = sheet.getRange(managerRange).getValues();
-		const usernames = sheet.getRange(usernameRange).getValues();
-
-		usernames.forEach((row, rowIndex) => {
+		// ユーザー名の範囲をループ
+		userNameRange.forEach((row, rowIndex) => {
 			let userName = row[0];
 			userName = userName.replace(/[@＠]/g, "").trim(); // 「@」および「＠」記号の除去とトリミング
 
-			const managerName = managerNames[rowIndex][0];
+			const managerName = managerRange[rowIndex][0];
+			const teamName = teamRange[rowIndex][0];
 
-			// 担当者名をキーにして、対応するアカウント名を配列に追加
-			if (!result[managerName]) {
-				result[managerName] = [];
+			// チーム名をキーにして、担当者名とアカウント名を追加
+			if (!result[teamName]) {
+				result[teamName] = {};
+			}
+			// 担当者名をキーにして、アカウント名を追加
+			if (!result[teamName][managerName]) {
+				result[teamName][managerName] = {};
 			}
 
-			result[managerName].push(userName);
+			result[teamName][managerName].push(userName);
 		});
 	});
 
 	return result;
 }
-
 // apiService.gs
 
 /**
