@@ -1,8 +1,4 @@
-const IS_DEBUG = false; // デバッグモードを有効にするかどうか
-const IS_MOCK_METRICS = false;
-
 // userRetrieval.gs
-
 /**
  * 担当者苗字をキーにしてアカウント名を管理する関数
  * @param {*} sheetInfo
@@ -18,8 +14,8 @@ function getManagerAndUsername(sheetInfo) {
 	const result = {};
 
 	// managerRange と usernameRange が配列であることを前提に処理
-	sheetInfo.managerRange.forEach((managerRange, index) => {
-		const usernameRange = sheetInfo.usernameRange[index];
+	sheetInfo.ranges.manager.forEach((managerRange, index) => {
+		const usernameRange = sheetInfo.ranges.userName[index];
 
 		const managerNames = sheet.getRange(managerRange).getValues();
 		const usernames = sheet.getRange(usernameRange).getValues();
@@ -158,10 +154,10 @@ function writeToSheet(sheetInfo, manager, accountData, isDebug = false) {
 	Logger.log(
 		`
 		[${isDebug ? "DEBUG" : "WRITE"}]
-		ファイル名 ${sheet.getName()}
+		ファイル名 ${sheet.getName()} 
 		シート名 ${sheetInfo.sheetName}
 		`
-	);
+	); // null?
 
 	// 日付列の範囲を取得
 	const dateRange = sheet.getRange(sheetInfo.dateRange);
@@ -298,8 +294,4 @@ const main = () => {
 	});
 	// */
 };
-
-// トリガー設定
-function setupTrigger() {
-	ScriptApp.newTrigger("main").timeBased().everyMinutes(15).create();
-}
+//*/
